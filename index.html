@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.0/spectre.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.0/spectre-icons.min.css">
+<style>
+.container{
+text-align: center;
+}
+span{
+padding: 10px;
+}
+[v-cloak]{
+display: none;
+}
+</style>
+
+
+</head>
+<body>
+  <div id="App" class="container grid-lg">
+      <h1>Lista userów</h1>
+      <mt-users :users="users"></mt-users>
+
+
+  </div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.18/vue.js"></script>
+<script>
+  var Event = new Vue({
+    methods: {
+      usuwanieUsera: function(id){
+        this.$emit("remove", id)
+      }
+    }
+  })
+
+
+  Vue.component('mt-users', {
+    template: `
+    <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Lp.</th>
+            <th>Imie i Nazwisko</th>
+            <th>Edytuj</th>
+            <th>Wiek</th>
+            <th>Edytuj</th>
+            <th>Usuń</th>
+          </tr>
+        </thead>
+        <tbody>
+          <mt-user 
+          v-for="(user, index) in users" 
+          :user="user"
+          :key="user.id" 
+          :index="index"
+          ></mt-user>
+        </tbody>
+      </table>`,
+      props: ["users"]
+  })
+
+
+  Vue.component('mt-user', {
+    template: `
+      <tr>
+        <td>{{ index + 1}}.</td>
+        <template v-if="editMode">
+          <td>
+            <div class="form-group">
+              <input type="text" class="form-input" v-model.lazy="user.nazwa" /> 
+            </div>
+          </td>  
+        </template>
+        <template v-else="!editmode">
+          <td>{{ user.nazwa }}</td>
+        </template>
+        <td>
+          <button class="btn btn-primary" @click="editMode = !editMode">
+            <i class="icon" :class="{'icon-edit': !editMode, 'icon-check': editMode}"></i>
+          </button></td>
+        <template v-if="!ageMode">
+          <td>{{ user.wiek }}</td>
+        </template>
+        <template v-else="ageMode">
+          <td>
+            <div class="form-group">
+              <input type="number" class="form-input" v-model.lazy="user.wiek"/>
+            </div>  
+          </td>
+        </template>
+        <td>
+          <button class="btn btn-info" @click="ageMode = !ageMode">
+            <i class="icon" :class="{'icon-edit': !ageMode, 'icon-check': ageMode}"></i>  
+          </button>
+        </td>
+        <td>
+          <button class="btn btn-error" @click="usun(user.id)">
+          <i class="icon icon-delete"></i>
+            </button></td>  
+      </tr>
+  `,
+  data() {
+    return{
+      editMode: false,
+      ageMode: false
+    };
+  },
+  props: ["user", "index"],
+  methods: {
+    usun: function(id) {
+      Event.usuwanieUsera(id)
+    }
+  }
+  });
+
+
+
+    new Vue({
+        el: "#App",
+        data: {
+          users: [
+            {id: 1, nazwa: "Jan Kowalski", wiek: 28},
+            {id: 2, nazwa: "Mikołaj Kopernik", wiek: 18},
+            {id: 3, nazwa: "Julian Tuwim", wiek: 32},
+            {id: 4, nazwa: "Michał Kwiatkowski", wiek: 33},
+            {id: 5, nazwa: "Dawid Podsiadło", wiek: 44},
+            {id: 6, nazwa: "Jacek Kaczmarski", wiek: 22},
+          ]
+        },
+        methods:{
+          usuwanie: function(id){
+            var index = _.findIndex(this.users, ["id", id]);
+            this.users.splice(index, 1);
+          }
+        },
+        created: function() {
+          Event.$on("remove", this.usuwanie);
+        }
+      });
+    
+    </script>
+</body>
+</html>
